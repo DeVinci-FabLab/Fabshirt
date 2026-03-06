@@ -1,0 +1,29 @@
+#include <Arduino.h>
+const int analogPin = A0;
+
+const float VCC = 3.3;       
+const float R1 = 100000.0;   
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+ 
+  int adcValue = analogRead(analogPin);
+  
+  float Vout = adcValue * (VCC / 1023.0);
+  
+  float R2 = R1 * Vout / (VCC - Vout);
+  
+  // Affichage
+  Serial.print("ADC Value: ");
+  Serial.print(adcValue);
+  Serial.print(" | Vout: ");
+  Serial.print(Vout, 3);
+  Serial.print(" V | R2 necessaire: ");
+  Serial.print(R2 / 1000.0, 2);  
+  Serial.println(" kΩ");
+  
+  delay(1000); 
+}

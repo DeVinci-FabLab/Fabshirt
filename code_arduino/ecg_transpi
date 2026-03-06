@@ -1,0 +1,84 @@
+#include <Wire.h>
+#include "MAX30105.h"
+#include "heartRate.h"
+#include <Arduino.h>
+
+MAX30105 particleSensor;
+//const int analogPin = A0;
+//const float VCC = 3.3;       
+//const float R1 = 100000.0; 
+const byte RATE_SIZE= 4; //moyenne 4 battements
+byte rates[RATE_SIZE];
+byte rateSpot=0;
+long lastBeat=0;
+
+float beatsPerMinute;
+int beatAvg;
+
+void setup() 
+{
+  Serial.begin(115200);
+  Serial.println("Initialisation du MAX30101..");
+  
+
+  if (!particleSensor.begin(Wire, I2C_SPEED_STANDARD))
+  {
+    Serial.println("Capteur MAX30101 non détecté. Vérifiez le câblage!");
+    while(1);
+  }
+  particleSensor.setup();
+  particleSensor.setPulseAmplitudeRed(0x1F);
+  particleSensor.setPulseAmplitudeGreen(0);
+
+  Serial.println("Place ton doigt sur le capteur");
+ 
+}
+
+void loop() 
+{
+  long irValue = particleSensor.getIR();
+
+  if(checkForBeat(irValue))
+  {
+    long delta= millis()- lastBeat;
+    lastBeat= millis();
+
+    beatsPerMinute = 60/ (delta/1000.0);
+
+    if(beatsPerMinute< 255 && beatsPerMinute>20)
+    {
+      rates[rateSpot++]= (byte)beatsPerMinute;
+      rateSpot%= RATE_SIZE;
+
+      beatAvg=0;
+      for(byte i=0; i<RATE_SIZE; i++)
+      {
+        beatAvg+= rates[i];
+      }
+      beatAvg/= RATE_SIZE;
+
+    }
+
+    Serial.print("BPM= ");
+    Serial.print(beatsPerMinute);
+    Serial.print("\n");
+    Serial.print("| Moyenne BPM = ");
+    Serial.print(beatAvg);
+  }
+ //Serial.print(irValue);
+ //Serial.print(" ");
+//capteur transpi
+//int adcValue = analogRead(analogPin);
+//float Vout = adcValue * (VCC / 1023.0);
+//float R2 = R1 * Vout / (VCC - Vout);
+  
+  // Affichage
+ //Serial.print("ADC Value: ");
+ //Serial.print(adcValue);
+ //Serial.print(" | Vout: ");
+ //Serial.print(Vout, 3);
+ //Serial.print(" V | R2 necessaire: ");
+ //Serial.print(R2 / 1000.0, 2);  
+ //Serial.println(" kΩ");
+  //delay(1000);
+}

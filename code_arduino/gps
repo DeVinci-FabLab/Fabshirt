@@ -1,0 +1,50 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <SparkFun_u-blox_GNSS_Arduino_Library.h>
+
+SFE_UBLOX_GNSS gps;
+
+void setup() {
+  Serial.begin(115200);
+  delay(2000);
+  Serial.println("Initialisation GPS");
+
+  Wire.begin(); 
+
+  if (!gps.begin()) {
+    Serial.println("GPS non detecte !");
+    while (1);
+  }
+
+  Serial.println("GPS detecte ");
+}
+
+void loop() {
+  gps.checkUblox(); 
+
+  int fixType = gps.getFixType();
+  int satellitesVisible = gps.getSIV(); 
+
+  Serial.println("GPS DEBUG");
+  Serial.print("Fix Type: ");
+  Serial.println(fixType); // 0 = aucun fix, 2 = 2D, 3 = 3D
+
+  Serial.print("Satellites visibles: ");
+  Serial.println(satellitesVisible);
+
+  if (fixType > 0) {
+    Serial.print("Latitude : ");
+    Serial.println(gps.getLatitude() / 10000000.0, 7);
+
+    Serial.print("Longitude: ");
+    Serial.println(gps.getLongitude() / 10000000.0, 7);
+
+    Serial.print("Altitude : ");
+    Serial.println(gps.getAltitude() / 1000.0);
+  } else {
+    Serial.println("Recherche satellites...");
+  }
+
+  Serial.println();
+  delay(1000);
+}
