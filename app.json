@@ -10,6 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSBlutoothAlwaysUsageDescription": "Cette app utilise le blutooth pour se conncter à l'ESP32"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -20,6 +24,14 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.chacha92.FABSHIRT"
     },
     "web": {
       "output": "static",
@@ -40,10 +52,28 @@
         }
       ],
       "expo-barcode-scanner"
+      "expo-barcode-scanner",
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "modes": [
+            "central"
+          ],
+          "bluetoothAlwaysPermission": "Autoriser l'accès au Bluetooth"
+        }
+      ],
+      "expo-dev-client"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "78a45f5b-e507-4af8-835c-beaeed19634a"
+      }
     }
   }
 }
