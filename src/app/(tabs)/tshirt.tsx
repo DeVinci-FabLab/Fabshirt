@@ -1,5 +1,7 @@
+// src/app/(tabs)/tshirt.tsx
+// T-SHIRT & CAPTEURS - VERSION AVEC TABS ET HEADER UNIFIÉ
+
 // @ts-nocheck
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     Alert,
@@ -9,16 +11,12 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { getCurrentUser } from '../store/userStore';
+import AppHeader from '../../components/AppHeader';
 
 const BACKGROUND_BLUE = '#020045';
-const TABS_BG = '#08072D';
 const ACTIVE_BLUE = '#0896B5';
 
 export default function TshirtScreen() {
-  const router = useRouter();
-  const user = getCurrentUser();
-
   const [side, setSide] = useState<'front' | 'back'>('front');
 
   const openInfo = (title: string, body: string) => {
@@ -31,14 +29,14 @@ export default function TshirtScreen() {
       id: '1',
       title: 'ECG',
       desc:
-        "Capteur ECG placé au niveau du thorax. Il mesure l’activité électrique du cœur et permet de calculer la fréquence cardiaque (BPM) et la variabilité.",
+        "Capteur ECG placé au niveau du thorax. Il mesure l'activité électrique du cœur et permet de calculer la fréquence cardiaque (BPM) et la variabilité.",
       style: { top: '30%', left: '50%' },
     },
     {
       id: '2',
       title: 'Respiration (face)',
       desc:
-        "Bande de respiration à l’avant, autour du thorax. Elle suit les mouvements respiratoires pour estimer la fréquence et l’amplitude.",
+        "Bande de respiration à l'avant, autour du thorax. Elle suit les mouvements respiratoires pour estimer la fréquence et l'amplitude.",
       style: { top: '36%', left: '50%' },
     },
     {
@@ -77,7 +75,7 @@ export default function TshirtScreen() {
       id: '6',
       title: 'Module électronique',
       desc:
-        'Boîtier amovible contenant l’ESP32, la batterie, la mémoire et la communication BLE vers l’application.',
+        'Boîtier amovible contenant ESP32, la batterie, la mémoire et la communication BLE vers application.',
       style: { top: '75%', left: '50%' },
     },
   ];
@@ -86,43 +84,8 @@ export default function TshirtScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Bande du haut */}
-      <View style={styles.topBar}>
-        <View>
-          <Text style={styles.smallText}>12 novembre 2025</Text>
-          <Text style={styles.bigText}>Aujourd’hui</Text>
-        </View>
-
-        <View style={styles.topRight}>
-          {/* Batterie fabshirt */}
-          <View style={styles.batteryWrapper}>
-            <View className="batteryCircle" style={styles.batteryCircle}>
-              <Text style={styles.batteryText}>75%</Text>
-            </View>
-          </View>
-
-          {/* Picto T-shirt */}
-          <View style={styles.circleIcon}>
-            <Image
-              source={require('../IMAGE/TSHIRT.png')}
-              style={{ width: 18, height: 18, tintColor: '#ffffff' }}
-            />
-          </View>
-
-          {/* Avatar profil */}
-          <View style={styles.avatarWrapper}>
-            {user?.profilePhoto ? (
-              <Image source={{ uri: user.profilePhoto }} style={styles.avatarImage} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={{ color: 'white' }}>
-                  {user?.firstName?.[0]?.toUpperCase() ?? 'M'}
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
+      {/* HEADER UNIFIÉ */}
+      <AppHeader />
 
       {/* Titre */}
       <View style={styles.headerTextBlock}>
@@ -142,12 +105,12 @@ export default function TshirtScreen() {
         */}
         {side === 'front' ? (
           <Image
-            source={require('../IMAGE/TSHIRT.png')}
+            source={require('../../../IMAGE/TSHIRT.png')}
             style={styles.tshirtImage}
           />
         ) : (
           <Image
-            source={require('../IMAGE/TSHIRT.png')}
+            source={require('../../../IMAGE/TSHIRT.png')}
             style={styles.tshirtImage}
           />
         )}
@@ -201,125 +164,15 @@ export default function TshirtScreen() {
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* Barre d’onglets bas */}
-      <View style={styles.tabsContainer}>
-        {/* Accueil */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => router.push('/dashboard')}
-        >
-          <Image
-            source={require('../IMAGE/ACCUEIL.png')}
-            style={styles.tabIconImage}
-          />
-          <Text style={styles.tabLabel}>Accueil</Text>
-        </TouchableOpacity>
-
-        {/* Activités */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => router.push('/activities')}
-        >
-          <Image
-            source={require('../IMAGE/ACTIVITES.png')}
-            style={styles.tabIconImage}
-          />
-          <Text style={styles.tabLabel}>Activités</Text>
-        </TouchableOpacity>
-
-        {/* Historique */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => router.push('/history')}
-        >
-          <Image
-            source={require('../IMAGE/HISTORIQUE.png')}
-            style={styles.tabIconImage}
-          />
-          <Text style={styles.tabLabel}>Historique</Text>
-        </TouchableOpacity>
-
-        {/* T-shirt (actif) */}
-        <View style={[styles.tabItem, styles.tabItemActive]}>
-          <Image
-            source={require('../IMAGE/TSHIRT.png')}
-            style={[styles.tabIconImage, { tintColor: ACTIVE_BLUE }]}
-          />
-          <Text style={[styles.tabLabel, styles.tabLabelActive]}>T-shirt</Text>
-        </View>
-      </View>
     </View>
   );
 }
 
+/* STYLES - HEADER SUPPRIMÉ (maintenant dans AppHeader) */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: BACKGROUND_BLUE,
-  },
-
-  /* Top bar */
-  topBar: {
-    paddingTop: 40,
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  smallText: {
-    color: 'white',
-    fontSize: 12,
-  },
-  bigText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  topRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  batteryWrapper: {},
-  batteryCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#00FF7F',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  batteryText: {
-    color: '#00FF7F',
-    fontSize: 10,
-  },
-  circleIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarWrapper: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    overflow: 'hidden',
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  avatarPlaceholder: {
-    flex: 1,
-    backgroundColor: '#555',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   headerTextBlock: {
@@ -342,6 +195,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   tshirtImage: {
     width: '80%',
@@ -359,7 +213,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#ffffff',
-    // pour centrer un peu mieux quand on donne left: '50%'
     marginLeft: -15,
   },
   sensorLabel: {
@@ -391,33 +244,5 @@ const styles = StyleSheet.create({
   sideButtonTextActive: {
     color: ACTIVE_BLUE,
     fontWeight: '700',
-  },
-
-  tabsContainer: {
-    height: 80,
-    backgroundColor: TABS_BG,
-    flexDirection: 'row',
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  tabItemActive: {
-    backgroundColor: '#02004F',
-  },
-  tabIconImage: {
-    width: 26,
-    height: 26,
-    resizeMode: 'contain',
-  },
-  tabLabel: {
-    color: 'white',
-    fontSize: 11,
-  },
-  tabLabelActive: {
-    fontWeight: '600',
-    color: ACTIVE_BLUE,
   },
 });

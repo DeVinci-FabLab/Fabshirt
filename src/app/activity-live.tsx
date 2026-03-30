@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { getCurrentUser } from '../store/userStore';
+import AppHeaderSimple from '../components/AppHeaderSimple';
 
 const BACKGROUND_BLUE = '#020045';
 const TABS_BG = '#08072D';
@@ -16,8 +16,6 @@ const CARD_PINK = '#C3295A';
 
 export default function ActivityLiveScreen() {
   const router = useRouter();
-  const user = getCurrentUser();
-  const firstName = user?.firstName || 'Maëlle';
 
   const [isPaused, setIsPaused] = useState(false);
 
@@ -27,38 +25,8 @@ export default function ActivityLiveScreen() {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.topBar}>
-        <View>
-          <Text style={styles.smallText}>12 novembre 2025</Text>
-          <Text style={styles.smallText}>Aujourd’hui</Text>
-        </View>
-
-        <View style={styles.topRight}>
-          <View className="batterie" style={styles.batteryCircle}>
-            <Text style={styles.batteryText}>75%</Text>
-          </View>
-
-          <View style={styles.circleIcon}>
-            <Image
-              source={require('../IMAGE/TSHIRT.png')}
-              style={styles.smallTopIcon}
-            />
-          </View>
-
-          <View style={styles.avatarWrapper}>
-            {user?.profilePhoto ? (
-              <Image source={{ uri: user.profilePhoto }} style={styles.avatarImage} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={{ color: 'white' }}>
-                  {firstName.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
+      {/* HEADER UNIFIÉ */}
+      <AppHeaderSimple />
 
       {/* CONTENU */}
       <View style={styles.content}>
@@ -81,7 +49,7 @@ export default function ActivityLiveScreen() {
           </View>
           <View style={styles.smallCard}>
             <Text style={styles.smallCardTitle}>ALLURE</Text>
-            <Text style={styles.smallCardValue}>--’--’’</Text>
+            <Text style={styles.smallCardValue}>--'--''</Text>
             <Text style={styles.smallCardUnit}>MIN/KM</Text>
           </View>
         </View>
@@ -89,7 +57,7 @@ export default function ActivityLiveScreen() {
         <View style={styles.bigCard}>
           <View style={styles.bigCardHeader}>
             <Image
-              source={require('../IMAGE/RESPIRATION.png')}
+              source={require('../../IMAGE/RESPIRATION.png')}
               style={styles.metricIcon}
             />
             <Text style={styles.bigCardTitle}>RESPIRATION</Text>
@@ -104,7 +72,7 @@ export default function ActivityLiveScreen() {
         <View style={styles.bigCard}>
           <View style={styles.bigCardHeader}>
             <Image
-              source={require('../IMAGE/TRANSPIRATION.png')}
+              source={require('../../IMAGE/TRANSPIRATION.png')}
               style={styles.metricIcon}
             />
             <Text style={styles.bigCardTitle}>TRANSPIRATION</Text>
@@ -136,7 +104,7 @@ export default function ActivityLiveScreen() {
           onPress={() => router.push('/dashboard')}
         >
           <Image
-            source={require('../IMAGE/ACCUEIL.png')}
+            source={require('../../IMAGE/ACCUEIL.png')}
             style={styles.tabIconImage}
           />
           <Text style={styles.tabLabel}>Accueil</Text>
@@ -147,7 +115,7 @@ export default function ActivityLiveScreen() {
           onPress={() => router.push('/activities')}
         >
           <Image
-            source={require('../IMAGE/ACTIVITES.png')}
+            source={require('../../IMAGE/ACTIVITES.png')}
             style={styles.tabIconImage}
           />
           <Text style={styles.tabLabel}>Activités</Text>
@@ -158,7 +126,7 @@ export default function ActivityLiveScreen() {
           onPress={() => router.push('/history')}
         >
           <Image
-            source={require('../IMAGE/HISTORIQUE.png')}
+            source={require('../../IMAGE/HISTORIQUE.png')}
             style={styles.tabIconImage}
           />
           <Text style={styles.tabLabel}>Historique</Text>
@@ -166,10 +134,10 @@ export default function ActivityLiveScreen() {
 
         <TouchableOpacity
           style={styles.tabItem}
-          onPress={() => console.log('T-shirt')}
+          onPress={() => router.push('/tshirt')}
         >
           <Image
-            source={require('../IMAGE/TSHIRT.png')}
+            source={require('../../IMAGE/TSHIRT.png')}
             style={styles.tabIconImage}
           />
           <Text style={styles.tabLabel}>T-shirt</Text>
@@ -195,57 +163,32 @@ export default function ActivityLiveScreen() {
   );
 }
 
-/* STYLES */
+/* STYLES - HEADER SUPPRIMÉ (maintenant dans AppHeader) */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BACKGROUND_BLUE },
-  topBar: {
-    paddingTop: 40,
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  smallText: { color: 'white', fontSize: 12 },
-  topRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  batteryCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#00FF7F',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  batteryText: { color: '#00FF7F', fontSize: 10 },
-  circleIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  smallTopIcon: {
-    width: 20,
-    height: 20,
-    tintColor: '#ffffff',
-    resizeMode: 'contain',
-  },
-  avatarWrapper: { width: 34, height: 34, borderRadius: 17, overflow: 'hidden' },
-  avatarImage: { width: '100%', height: '100%' },
-  avatarPlaceholder: {
-    flex: 1,
-    backgroundColor: '#555',
-    alignItems: 'center',
-    justifyContent: 'center',
+  container: { 
+    flex: 1, 
+    backgroundColor: BACKGROUND_BLUE 
   },
 
-  content: { flex: 1, paddingHorizontal: 20, paddingBottom: 20 },
-  bpmBlock: { alignItems: 'center', marginTop: 10, marginBottom: 10 },
-  bpmValue: { color: 'white', fontSize: 80, fontWeight: '800' },
-  bpmLabel: { color: 'white', fontSize: 18 },
+  content: { 
+    flex: 1, 
+    paddingHorizontal: 20, 
+    paddingBottom: 20 
+  },
+  bpmBlock: { 
+    alignItems: 'center', 
+    marginTop: 10, 
+    marginBottom: 10 
+  },
+  bpmValue: { 
+    color: 'white', 
+    fontSize: 80, 
+    fontWeight: '800' 
+  },
+  bpmLabel: { 
+    color: 'white', 
+    fontSize: 18 
+  },
 
   rowCards: {
     flexDirection: 'row',
@@ -260,9 +203,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginHorizontal: 4,
   },
-  smallCardTitle: { color: 'white', fontSize: 12, marginBottom: 6 },
-  smallCardValue: { color: 'white', fontSize: 22, fontWeight: '700' },
-  smallCardUnit: { color: 'white', fontSize: 11, marginLeft: 4 },
+  smallCardTitle: { 
+    color: 'white', 
+    fontSize: 12, 
+    marginBottom: 6 
+  },
+  smallCardValue: { 
+    color: 'white', 
+    fontSize: 22, 
+    fontWeight: '700' 
+  },
+  smallCardUnit: { 
+    color: 'white', 
+    fontSize: 11, 
+    marginLeft: 4 
+  },
 
   bigCard: {
     backgroundColor: '#3E2B78',
@@ -271,12 +226,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginTop: 10,
   },
-  bigCardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  metricIcon: { width: 26, height: 26, resizeMode: 'contain', marginRight: 8 },
-  bigCardTitle: { color: 'white', fontSize: 14, fontWeight: '600' },
-  rowCenter: { flexDirection: 'row', alignItems: 'flex-end' },
-  bigCardValue: { color: 'white', fontSize: 26, fontWeight: '700' },
-  bigCardUnit: { color: 'white', fontSize: 14, marginLeft: 4, marginBottom: 2 },
+  bigCardHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 6 
+  },
+  metricIcon: { 
+    width: 26, 
+    height: 26, 
+    resizeMode: 'contain', 
+    marginRight: 8 
+  },
+  bigCardTitle: { 
+    color: 'white', 
+    fontSize: 14, 
+    fontWeight: '600' 
+  },
+  rowCenter: { 
+    flexDirection: 'row', 
+    alignItems: 'flex-end' 
+  },
+  bigCardValue: { 
+    color: 'white', 
+    fontSize: 26, 
+    fontWeight: '700' 
+  },
+  bigCardUnit: { 
+    color: 'white', 
+    fontSize: 14, 
+    marginLeft: 4, 
+    marginBottom: 2 
+  },
   bigCardSub: {
     marginTop: 4,
     color: 'rgba(255,255,255,0.8)',
@@ -319,7 +299,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: CARD_PINK,
   },
-  stopText: { color: CARD_PINK, fontWeight: '700', fontSize: 16 },
+  stopText: { 
+    color: CARD_PINK, 
+    fontWeight: '700', 
+    fontSize: 16 
+  },
 
   tabsContainer: {
     height: 80,
@@ -338,7 +322,10 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     tintColor: '#ffffff',
   },
-  tabLabel: { color: 'white', fontSize: 11 },
+  tabLabel: { 
+    color: 'white', 
+    fontSize: 11 
+  },
 
   pauseOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -346,8 +333,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  pauseOverlayContent: { alignItems: 'center', paddingHorizontal: 24 },
-  bigPauseIcon: { flexDirection: 'row', gap: 14, marginBottom: 20 },
+  pauseOverlayContent: { 
+    alignItems: 'center', 
+    paddingHorizontal: 24 
+  },
+  bigPauseIcon: { 
+    flexDirection: 'row', 
+    gap: 14, 
+    marginBottom: 20 
+  },
   bigPauseBar: {
     width: 40,
     height: 120,
@@ -362,5 +356,9 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#FF4C8B',
   },
-  resumeText: { color: '#FF4C8B', fontSize: 16, fontWeight: '700' },
+  resumeText: { 
+    color: '#FF4C8B', 
+    fontSize: 16, 
+    fontWeight: '700' 
+  },
 });
