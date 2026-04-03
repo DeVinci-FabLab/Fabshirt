@@ -19,3 +19,4 @@ Thumbs.db
 
 # Expo config file (pour les projets Expo)
 expo-env.d.ts
+.expo

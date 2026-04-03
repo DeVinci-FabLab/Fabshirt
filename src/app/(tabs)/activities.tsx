@@ -1,4 +1,4 @@
-// src/app/(tabs)/activities.tsx
+
 // @ts-nocheck
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';

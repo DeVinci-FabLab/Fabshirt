@@ -46,7 +46,7 @@ export default function LoginScreen() {
   const canSubmit = pseudo.length >= 3 && password.length >= 6;
 
   /**
-   * ÉTAPE 1 : Connexion → Génération du code
+   * 1 : Connexion, Génération du code
    */
   const handleLogin = async () => {
     if (!canSubmit) {
@@ -58,7 +58,7 @@ export default function LoginScreen() {
     setError('');
 
     try {
-      // Connexion - génère un code
+    
       const { user, connectionCode } = await localStorage.login(pseudo, password);
       
       setCurrentUserState(user);

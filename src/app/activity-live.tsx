@@ -21,7 +21,7 @@ export default function ActivityLiveScreen() {
 
   const handlePause = () => setIsPaused(true);
   const handleResume = () => setIsPaused(false);
-  const handleStop = () => router.push('/history');
+  const handleStop = () => router.push('/activities-summary');
 
   return (
     <View style={styles.container}>

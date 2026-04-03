@@ -264,7 +264,7 @@ class LocalStorageService {
         return { isValid: true, needsReauth: false, currentCode: session.code };
       }
 
-      // Si inactivité > timeout = Session expirée
+      // Si inactivité > timeout → Session expirée
       if (inactivityMinutes >= this.SESSION_TIMEOUT_MINUTES || now > expiresAt) {
         console.log('Session expirée - Inactivité > ' + this.SESSION_TIMEOUT_MINUTES + ' min');
         session.isActive = false;
@@ -344,6 +344,63 @@ class LocalStorageService {
     }
   }
 
+  // SUPPRIMER LE COMPTE DE L'UTILISATEUR CONNECTÉ
+  async deleteAccount(): Promise<void> {
+    const user = await this.getCurrentUser();
+    if (!user) throw new Error('Utilisateur non connecté');
+
+    // Retirer l'utilisateur de la liste globale
+    const users = await this.getAllUsers();
+    const filtered = users.filter(u => u.id !== user.id);
+    await this.saveAllUsers(filtered);
+
+    // Effacer la session et l'utilisateur courant
+    await AsyncStorage.multiRemove([
+      this.KEYS.CURRENT_USER,
+      this.KEYS.CONNECTION_SESSION,
+    ]);
+
+    console.log('Compte supprimé:', user.pseudo);
+  }
+
+  // VÉRIFIER LE MOT DE PASSE ACTUEL DE L'UTILISATEUR CONNECTÉ
+  async verifyCurrentPassword(password: string): Promise<boolean> {
+    try {
+      const user = await this.getCurrentUser();
+      if (!user) return false;
+      return user.password === password;
+    } catch (error) {
+      console.log('Erreur vérification mot de passe:', error);
+      return false;
+    }
+  }
+
+  // MODIFIER LE PSEUDO DE L'UTILISATEUR CONNECTÉ
+  async updatePseudo(newPseudo: string): Promise<void> {
+    const user = await this.getCurrentUser();
+    if (!user) throw new Error('Utilisateur non connecté');
+
+    const users = await this.getAllUsers();
+    const conflict = users.find(
+      u => u.pseudo.toLowerCase() === newPseudo.toLowerCase() && u.id !== user.id
+    );
+    if (conflict) throw new Error('Ce pseudo est déjà utilisé');
+
+    user.pseudo = newPseudo;
+    await this.updateCurrentUser(user);
+    console.log('Pseudo mis à jour:', newPseudo);
+  }
+
+  // MODIFIER LE MOT DE PASSE DE L'UTILISATEUR CONNECTÉ
+  async updatePassword(newPassword: string): Promise<void> {
+    const user = await this.getCurrentUser();
+    if (!user) throw new Error('Utilisateur non connecté');
+
+    user.password = newPassword;
+    await this.updateCurrentUser(user);
+    console.log('Mot de passe mis à jour');
+  }
+
   /**
    * VÉRIFIER LE CODE LORS DU RETOUR EN FOREGROUND
    * Ne génère pas de nouvelle session — vérifie uniquement le code existant
@@ -358,6 +415,8 @@ class LocalStorageService {
 
       if (!session.isActive) return false;
       if (enteredCode !== session.code) return false;
+
+      // Code correct — réinitialiser le timer d'inactivité sans toucher au reste
       session.lastActivity = new Date().toISOString();
       await AsyncStorage.setItem(
         this.KEYS.CONNECTION_SESSION,

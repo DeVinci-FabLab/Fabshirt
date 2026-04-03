@@ -1,5 +1,3 @@
-// src/contexts/SessionContext.tsx
-// GESTION GLOBALE DE LA SESSION
 
 // @ts-nocheck
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
@@ -16,16 +14,24 @@ import {
 } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { localStorage } from '../services/localStorage';
+import { sessionFlags } from '../services/Sessionflags';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SessionContext = createContext({});
+// Pages qui n'ont pas besoin de session active
+const PUBLIC_PAGES = ['/', '/login', '/signup', '/verify-code', '/set-password', '/explore', '/activity-live', '/activities-summary']
+
+const SessionContext = createContext<{ logout?: () => Promise<void> }>({});
 
 export function SessionProvider({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const intervalRef = useRef(null);
-  const hasShownExpiryAlert = useRef(false);
   const appStateRef = useRef(AppState.currentState);
+
+  const pathnameRef = useRef(pathname);
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   // Modal de re-saisie du code lors du retour en foreground
   const [requiresReauth, setRequiresReauth] = useState(false);
@@ -53,10 +59,25 @@ export function SessionProvider({ children }) {
   }, []);
 
   /**
-   * Détecte le retour en foreground.
-   * Si une session est active demander le code 
+   * Déconnexion 
+   * À utiliser depuis n'importe quel écran via useSession().
    */
-  
+  const logout = async () => {
+    sessionFlags.isLoggingOut = true;
+    sessionFlags.hasShownExpiryAlert = false; // reset pour le prochain login
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setReauth(false);
+    await localStorage.logout();
+    router.replace('/login');
+  };
+
+  /**
+   * Détecte le retour en foreground.
+   * Si une session est active, demande le code existant.
+   */
   const handleAppStateChange = async (nextState) => {
     const prevState = appStateRef.current;
     appStateRef.current = nextState;
@@ -65,6 +86,7 @@ export function SessionProvider({ children }) {
       (prevState === 'background' || prevState === 'inactive') && nextState === 'active';
 
     if (!comingBackToForeground) return;
+    if (sessionFlags.isLoggingOut) return;
 
     console.log('App revenue en foreground - vérification session');
 
@@ -86,8 +108,8 @@ export function SessionProvider({ children }) {
   };
 
   /**
-   * Valide le code de reprise - ne génère PAS de nouvelle session.
-   * Réinitialise seulement le timer d'inactivité si le code est correct.
+   * Valide le code de reprise.
+   * Reinitialise seulement le timer d'inactivité si le code est correct.
    */
   const handleResumeValidate = async () => {
     const fullCode = codeDigits.join('');
@@ -124,28 +146,32 @@ export function SessionProvider({ children }) {
       inputRefs.current[index - 1]?.focus();
     }
   };
-
   const checkSession = async () => {
-    if (requiresReauthRef.current) return;
+    if (sessionFlags.isLoggingOut || requiresReauthRef.current) return;
 
-    const publicPages = ['/', '/explore'];
-    if (publicPages.includes(pathname)) return;
+    // Lire le pathname courant via la ref, jamais via la closure
+    if (PUBLIC_PAGES.includes(pathnameRef.current)) return;
 
     try {
       const { isValid, needsReauth } = await localStorage.isConnectionSessionValid();
 
-      const sessionData = await AsyncStorage.getItem('fabshirt_connection_session');
-      if (sessionData) {
-        const session = JSON.parse(sessionData);
-        const timeLeft = new Date(session.expiresAt).getTime() - Date.now();
-        console.log('Session - expire dans:', Math.floor(timeLeft / 1000), 's');
-      } else {
-        console.log('Aucune session trouvée');
+      if (process.env.NODE_ENV === 'development') {
+        const sessionData = await AsyncStorage.getItem('fabshirt_connection_session');
+        if (sessionData) {
+          const session = JSON.parse(sessionData);
+          const timeLeft = new Date(session.expiresAt).getTime() - Date.now();
+          console.log('Session - expire dans:', Math.floor(timeLeft / 1000), 's');
+        } else {
+          console.log('Aucune session trouvée');
+        }
       }
 
-      if (needsReauth && !hasShownExpiryAlert.current) {
+      // sessionFlags.hasShownExpiryAlert persiste sur les remontages :
+      // même si SessionProvider se remonte (ex : navigation stack → tabs),
+      // l'alerte ne s'affiche qu'une seule fois.
+      if (needsReauth && !sessionFlags.hasShownExpiryAlert) {
         console.log('SESSION EXPIRÉE');
-        hasShownExpiryAlert.current = true;
+        sessionFlags.hasShownExpiryAlert = true;
 
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
@@ -171,10 +197,10 @@ export function SessionProvider({ children }) {
   const canValidate = codeDigits.join('').length === 6;
 
   return (
-    <SessionContext.Provider value={{}}>
+    <SessionContext.Provider value={{ logout }}>
       {children}
 
-      {/* Modal de re-saisie — affiché dès que l'app revient en foreground */}
+      {/* Modal de re-saisie  affiché dès que l'app revient en foreground */}
       <Modal visible={requiresReauth} transparent animationType="fade">
         <View style={styles.overlay}>
           <View style={styles.card}>
@@ -221,6 +247,8 @@ export function SessionProvider({ children }) {
 }
 
 export const useSession = () => useContext(SessionContext);
+
+export const useSessionGuard = useSession;
 
 const styles = StyleSheet.create({
   overlay: {

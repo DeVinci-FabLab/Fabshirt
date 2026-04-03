@@ -1,3 +1,4 @@
+// src/components/AppHeader.tsx
 
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
@@ -5,19 +6,20 @@ import {
   Image,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { localStorage } from '../services/localStorage';
 
 export default function AppHeader() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [currentDate, setCurrentDate] = useState('');
 
   useEffect(() => {
     loadUser();
     updateDate();
-    
-    // Mettre à jour la date toutes les minutes
     const interval = setInterval(updateDate, 60000);
     return () => clearInterval(interval);
   }, []);
@@ -35,15 +37,12 @@ export default function AppHeader() {
     const date = new Date().toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     });
     setCurrentDate(date);
   };
 
-  // Pseudo ou "Utilisateur" par défaut
   const pseudo = user?.pseudo || 'Utilisateur';
-  
-  // Première lettre du pseudo en majuscule pour l'avatar
   const avatarLetter = pseudo.charAt(0).toUpperCase();
 
   return (
@@ -68,19 +67,20 @@ export default function AppHeader() {
           />
         </View>
 
-        {/* Avatar avec première lettre du pseudo */}
-        <View style={styles.avatarWrapper}>
+        {/* Avatar — ouvre le profil */}
+        <TouchableOpacity
+          style={styles.avatarWrapper}
+          onPress={() => router.push('/profile')}
+          activeOpacity={0.75}
+        >
           {user?.profilePhoto ? (
-            <Image 
-              source={{ uri: user.profilePhoto }} 
-              style={styles.avatarImage} 
-            />
+            <Image source={{ uri: user.profilePhoto }} style={styles.avatarImage} />
           ) : (
             <View style={styles.avatarPlaceholder}>
               <Text style={styles.avatarText}>{avatarLetter}</Text>
             </View>
           )}
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -95,15 +95,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  dateText: { 
-    color: 'white', 
+  dateText: {
+    color: 'white',
     fontSize: 14,
     fontWeight: '500',
   },
-  topRight: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    gap: 10 
+  topRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   batteryCircle: {
     width: 32,
@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  batteryText: { 
-    color: '#00FF7F', 
+  batteryText: {
+    color: '#00FF7F',
     fontSize: 10,
     fontWeight: '600',
   },
@@ -134,19 +134,19 @@ const styles = StyleSheet.create({
     tintColor: '#ffffff',
     resizeMode: 'contain',
   },
-  avatarWrapper: { 
-    width: 34, 
-    height: 34, 
-    borderRadius: 17, 
-    overflow: 'hidden' 
+  avatarWrapper: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    overflow: 'hidden',
   },
-  avatarImage: { 
-    width: '100%', 
-    height: '100%' 
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   avatarPlaceholder: {
     flex: 1,
-    backgroundColor: '#555',
+    backgroundColor: '#C3295A',
     alignItems: 'center',
     justifyContent: 'center',
   },

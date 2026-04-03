@@ -40,15 +40,18 @@ app/
 ├── verify-code.tsx       # Saisie du code de connexion
 ├── complete-profile.tsx  # Complétion du profil (données physiques)
 ├── set-password.tsx      # Changement de mot de passe
-└── activity-live.tsx     # Session sportive en cours (BPM, distance, chrono)
+├── activity-live.tsx     # Session sportive en cours (BPM, distance, chrono)
+└── activity-summary.tsx  # Exemple de dashboards pour session sportive
 
 components/
 ├── AppHeader.tsx         # Header avec gestion de session (expiration auto)
 ├── AppHeaderSimple.tsx   # Header allégé pour les écrans d'activité
 └── SessionContext.tsx    # Contexte global de session (React Context)
 
+
 services/
-└── localStorage.ts       # Couche de persistance (AsyncStorage)
+├── localStorage.ts       # Couche de persistance (AsyncStorage)
+└── Sessionflags.ts       # Flags partagés entre SessionContext et les écrans hors du provider
 ```
 
 ### Setting up
@@ -75,6 +78,7 @@ git clone <url-du-repo>
 cd fabshirt
 npm install
 npx expo install @react-native-async-storage/async-storage
+npx expo install react-native-chart-kit react-native-svg
 ```
 
 > [!WARNING]
