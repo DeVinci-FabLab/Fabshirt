@@ -18,6 +18,8 @@ import {
 } from 'react-native';
 import { localStorage } from '../services/localStorage';
 import { sessionFlags } from '../services/Sessionflags';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 
 const BG       = '#020045';
 const CARD_BG  = 'rgba(255,255,255,0.05)';
@@ -190,7 +192,75 @@ export default function ProfileScreen() {
       ]
     );
   };
+  const handleExportJSON = async () => {
+  try {
+    if (!user) {
+      Alert.alert('Erreur', 'Aucun utilisateur connecté');
+      return;
+    }
 
+    const exportData = {
+      pseudo: user.pseudo,
+      export_date: new Date().toLocaleDateString('fr-FR', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      }),
+      activites: user.sessions?.length > 0
+        ? (user.sessions).map(session => ({
+            activite: session.sport || 'Non renseigné',
+            date: new Date(session.debut).toLocaleDateString('fr-FR', {
+              day: '2-digit', month: '2-digit', year: 'numeric',
+              hour: '2-digit', minute: '2-digit'
+            }),
+            fin: session.fin ? new Date(session.fin).toLocaleDateString('fr-FR', {
+              day: '2-digit', month: '2-digit', year: 'numeric',
+              hour: '2-digit', minute: '2-digit'
+            }) : 'En cours',
+            capteurs: (session.donnees || []).reduce((acc, d) => {
+              if (!acc[d.type]) acc[d.type] = [];
+              acc[d.type].push(d.data);
+              return acc;
+            }, {})
+          }))
+        : [
+            {
+              activite: 'Exemple - Course à pied',
+              date: '01/05/2026 18:10',
+              fin: '01/05/2026 18:55',
+              capteurs: {
+                BPM: [72, 85, 110, 145, 160, 138, 95],
+                Respiration: [14, 16, 22, 28, 30, 25, 18],
+                Transpiration: [10, 20, 35, 50, 65, 70, 68],
+                Accelerometre: [0.2, 0.5, 1.1, 0.9, 1.3, 0.7, 0.3]
+              }
+            }
+          ]
+    };
+
+    const json = JSON.stringify(exportData, null, 2);
+    const filename = `fabshirt_${user.pseudo}_${Date.now()}.json`;
+    const fileUri = FileSystem.documentDirectory + filename;
+
+    await FileSystem.writeAsStringAsync(fileUri, json, {
+      encoding: 'utf8',
+    });
+
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (isAvailable) {
+      await Sharing.shareAsync(fileUri, {
+        mimeType: 'application/json',
+        dialogTitle: 'Exporter mes données Fabshirt',
+        UTI: 'public.json',
+      });
+    } else {
+      Alert.alert('Erreur', 'Le partage de fichiers n\'est pas disponible');
+    }
+
+  } catch (error) {
+    console.log('Erreur export détaillée:', String(error));
+    Alert.alert('Erreur détaillée', String(error));
+  }
+};
   const avatarLetter = user?.pseudo?.charAt(0).toUpperCase() ?? '?';
 
   if (loading) {
@@ -286,6 +356,18 @@ export default function ProfileScreen() {
             <View style={styles.rowLeft}>
               <Text style={styles.rowIcon}></Text>
               <Text style={styles.rowLabel}>Guide d'utilisation</Text>
+            </View>
+            <Text style={styles.rowChevron}>›</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* DONNÉES */}
+        <Text style={styles.sectionTitle}>Données</Text>
+        <View style={styles.card}>
+          <TouchableOpacity style={styles.row} onPress={handleExportJSON}>
+            <View style={styles.rowLeft}>
+              
+              <Text style={styles.rowLabel}>Exporter mes données</Text>
             </View>
             <Text style={styles.rowChevron}>›</Text>
           </TouchableOpacity>
