@@ -2,9 +2,9 @@
 
 ## Overview
 
-> Add a short description of the project here.
+> Application mobile de suivi sportif connectée au t-shirt intelligent **Fabshirt**.
 
-Add important information about the project here.
+Fabshirt est une application React Native (Expo) permettant de suivre des sessions sportives en temps réel : fréquence cardiaque, GPS, distance, et données biométriques captées par le t-shirt connecté. Les utilisateurs peuvent créer un compte puis démarrer et consulter leurs activités.
 
 ## Getting Started
 
@@ -25,66 +25,133 @@ Add important information about the project here.
 
 ### Documentation
 
-Provide where to find to the documentation of the project. (ex: [Structure of the project](./docs/STRUCTURE.md))
+La structure du projet suit les conventions d'**Expo Router** (routing basé sur le système de fichiers).
+Pour l'instant ça ressemble à ça :
 
-It may include a link to an important [reference](https://example.com).
+```
+app/
+├── (tabs)/           # Écrans principaux (barre de navigation)
+│   ├── dashboard.tsx     # Accueil, historique et lancement d'activité
+│   ├── activities.tsx    # Carte GPS + choix du type d'activité
+│   ├── history.tsx       # Historique des sessions
+│   └── tshirt.tsx        # État et données du t-shirt connecté
+├── login.tsx             # Connexion (pseudo + mot de passe + code à 6 chiffres)
+├── signup.tsx            # Inscription
+├── verify-code.tsx       # Saisie du code de connexion
+├── complete-profile.tsx  # Complétion du profil (données physiques)
+├── set-password.tsx      # Changement de mot de passe
+├── activity-live.tsx     # Session sportive en cours (BPM, distance, chrono)
+└── activity-summary.tsx  # Exemple de dashboards pour session sportive
+
+components/
+├── AppHeader.tsx         # Header avec gestion de session (expiration auto)
+├── AppHeaderSimple.tsx   # Header allégé pour les écrans d'activité
+└── SessionContext.tsx    # Contexte global de session (React Context)
+
+
+services/
+├── localStorage.ts       # Couche de persistance (AsyncStorage)
+└── Sessionflags.ts       # Flags partagés entre SessionContext et les écrans hors du provider
+```
 
 ### Setting up
 
 #### Prerequisites
 
-- Define tools and libraries that are required to run the project with the version number.
-- If available, provide a link to the installation guide.
-- You may also add concepts or knowledge that are required to understand the project.
+- [Node.js](https://nodejs.org/) **v18 ou supérieur**
+- [npm](https://www.npmjs.com/) v9+ ou [yarn](https://yarnpkg.com/)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/) : `npm install -g expo-cli`
+- [Expo Go](https://expo.dev/client) installé sur ton téléphone (iOS ou Android), **ou** un émulateur configuré
+
+> [!NOTE]
+> Pour tester sur iOS en local, un Mac avec Xcode est nécessaire. Pour Android, Android Studio suffit.
+
+> [!TIP]
+> Expo Go est la façon la plus rapide de démarrer : installe l'app sur ton téléphone et scanne le QR code généré par `npx expo start`.
 
 #### Install
 
-Details here explicit instructions to install the project.
+Clone le dépôt puis installe les dépendances :
 
-Here are the info blocks available for github markdown:
-
-> [!NOTE]
-> Do not hesitate to add a note if necessary.
-
-> [!TIP]
-> Do not hesitate to add a tip if necessary.
+```bash
+git clone <url-du-repo>
+cd fabshirt
+npm install
+npx expo install @react-native-async-storage/async-storage
+npx expo install react-native-chart-kit react-native-svg
+```
 
 > [!WARNING]
-> Do not hesitate to add a warning if necessary.
-
-> [!IMPORTANT]
-> Do not hesitate to add an important note if necessary.
-
-> [!CAUTION]
-> Do not hesitate to add a caution if necessary.
+> Certaines dépendances natives (comme `react-native-maps` et `expo-location`) nécessitent une configuration supplémentaire si tu builds en natif (sans Expo Go). Consulte la documentation Expo pour le [prebuild](https://docs.expo.dev/workflow/prebuild/).
 
 #### Build & Run
 
-Detail here the instructions to build and run the project.
+Lance le serveur de développement Expo :
+
+```bash
+npx expo start
+```
+
+Cela ouvre le **Metro Bundler** dans le terminal et affiche un QR code.
+
+- **Sur téléphone physique** : scanne le QR code avec l'app Expo Go
+- **Sur émulateur Android** : appuie sur `a` dans le terminal
+- **Sur simulateur iOS** : appuie sur `i` dans le terminal (Mac uniquement)
 
 #### Usage
 
-Detail here the instructions to use the project.
+**Flux de navigation**
+
+1. **Inscription** : Crée un compte avec un pseudo et un mot de passe (min. 6 caractères). Les données physiques (sexe, âge, taille, poids) sont facultatives.
+
+2. **Connexion** : Entre ton pseudo et ton mot de passe. Un **code à 6 chiffres** est généré et s'affiche à l'écran, tu dois le saisir pour accéder à l'app. Ce code expire après 2 minutes d'inactivité (30 minutes en production).
+
+4. **Dashboard** : Page d'accueil avec l'historique de tes sessions et un bouton pour démarrer une nouvelle activité.
+
+5. **Activités** : Affiche ta position GPS sur une carte. Sélectionne le type d'activité (*Course à pied*, *Cyclisme*, *Musculation*) avant de démarrer.
+
+6. **Session en cours** (`activity-live`) : Affiche en temps réel le BPM, la distance et le chronomètre. Tu peux mettre en pause ou arrêter la session.
+
+7. **Historique** : Consulte tes sessions passées avec les données biométriques associées.
+
+> [!IMPORTANT]
+> La session de connexion expire automatiquement après 2 minutes d'inactivité en mode développement. Ce délai est paramétrable dans `services/localStorage.ts` via `SESSION_TIMEOUT_MINUTES`.
 
 ### Troubleshooting
 
-Detail here the troubleshooting of the project.
+**Le QR code ne fonctionne pas avec Expo Go**
+- Assure-toi que ton téléphone et ton ordinateur sont sur le **même réseau Wi-Fi**.
+- Si ça ne marche pas, utilise le mode tunnel : `npx expo start --tunnel`.
+
+**Erreur `Unable to resolve module`**
+- Supprime le cache et relance : `npx expo start --clear`
+- Réinstalle les dépendances : `rm -rf node_modules && npm install`
+
+**La carte GPS ne s'affiche pas**
+- Vérifie que tu as accordé les permissions de localisation à l'app.
+- Sur émulateur, configure une position GPS fictive depuis les paramètres de l'émulateur.
+
+**Le code de connexion expire trop vite**
+- En développement, `SESSION_TIMEOUT_MINUTES = 2`. Change cette valeur dans `services/localStorage.ts` selon tes besoins.
 
 ### Supported platforms
 
-- Precise here the platforms that are supported by the project.
-- If available, provide a link to the installation guide.
-- If in testing, do not hesitate to mention it.
+- **iOS** 13+ (testé via Expo Go et simulateur Xcode)
+- **Android** 8.0+ (testé via Expo Go et émulateur Android Studio)
+
+> [!NOTE]
+> Le build natif (sans Expo Go) n'a pas encore été validé sur les deux plateformes. Des ajustements de configuration peuvent être nécessaires.
 
 ### Supported languages
 
-- Precise here the languages that are supported by the project.
-- If necessary, precise if some languages needs to be checked.
+- Français (langue principale de l'interface)
 
 ### Future improvements
 
-- Precise here the future improvements that are planned for the project.
-- ~~Imporvement done can be styled like this.~~
+- Connexion en temps réel au t-shirt via Bluetooth / BLE
+- Affichage des données biométriques complètes pendant la session (respiration, transpiration, température)
+- Calcul automatique des statistiques de session (allure, calories, FC moyenne)
+- Historique détaillé par session avec graphiques
 
 ### Contributing
 

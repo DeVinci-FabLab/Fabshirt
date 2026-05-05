@@ -1,10 +1,10 @@
+
 // @ts-nocheck
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
-    Image,
     Modal,
     StyleSheet,
     Text,
@@ -12,19 +12,16 @@ import {
     View,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { getCurrentUser } from '../store/userStore';
+import AppHeader from '../../components/AppHeader';
 
 const BACKGROUND_BLUE = '#020045';
-const TABS_BG = '#08072D';
-const ACTIVE_BLUE = '#0896B5';
 const ORANGE = '#F18904';
 const PINK = '#C3295A';
 
-const ACTIVITY_TYPES = ['Course à pied', 'Cyclisme', 'Tir à l’arc'];
+const ACTIVITY_TYPES = ['Course à pied', 'Cyclisme', 'Musculation'];
 
 export default function ActivitiesScreen() {
   const router = useRouter();
-  const user = getCurrentUser();
 
   const [location, setLocation] = useState<any>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -73,39 +70,8 @@ export default function ActivitiesScreen() {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.topBar}>
-        <View>
-          <Text style={styles.smallText}>12 novembre 2025</Text>
-          <Text style={styles.smallText}>Aujourd’hui</Text>
-        </View>
-
-        <View style={styles.topRight}>
-          {/* batterie */}
-          <View style={styles.batteryCircle}>
-            <Text style={styles.batteryText}>75%</Text>
-          </View>
-
-          {/* icône T-shirt */}
-          <View style={styles.circleIcon}>
-            <Image
-              source={require('../IMAGE/TSHIRT.png')}
-              style={styles.smallTopIcon}
-            />
-          </View>
-
-          {/* avatar */}
-          <View style={styles.avatarWrapper}>
-            {user?.profilePhoto ? (
-              <Image source={{ uri: user.profilePhoto }} style={styles.avatarImage} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={{ color: 'white' }}>M</Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
+      {/* HEADER UNIFIÉ */}
+      <AppHeader />
 
       {/* SELECTEUR ACTIVITE */}
       <View style={styles.activitySelectorWrapper}>
@@ -155,55 +121,7 @@ export default function ActivitiesScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* TABS BAS */}
-      <View style={styles.tabsContainer}>
-        {/* Accueil */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => router.push('/dashboard')}
-        >
-          <Image
-            source={require('../IMAGE/ACCUEIL.png')}
-            style={styles.tabIconImage}
-          />
-          <Text style={styles.tabLabel}>Accueil</Text>
-        </TouchableOpacity>
-
-        {/* Activités (actif) */}
-        <View style={styles.tabItem}>
-          <Image
-            source={require('../IMAGE/ACTIVITES.png')}
-            style={[styles.tabIconImage, { tintColor: ACTIVE_BLUE }]}
-          />
-          <Text style={[styles.tabLabel, { color: ACTIVE_BLUE }]}>Activités</Text>
-        </View>
-
-        {/* Historique  👉 /history */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => router.push('/history')}
-        >
-          <Image
-            source={require('../IMAGE/HISTORIQUE.png')}
-            style={styles.tabIconImage}
-          />
-          <Text style={styles.tabLabel}>Historique</Text>
-        </TouchableOpacity>
-
-        {/* T-shirt */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => console.log('T-shirt')}
-        >
-          <Image
-            source={require('../IMAGE/TSHIRT.png')}
-            style={styles.tabIconImage}
-          />
-          <Text style={styles.tabLabel}>T-shirt</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* MODAL LISTE TYPE D’ACTIVITE */}
+      {/* MODAL LISTE TYPE D'ACTIVITE */}
       <Modal
         visible={pickerVisible}
         transparent
@@ -238,72 +156,11 @@ export default function ActivitiesScreen() {
   );
 }
 
-/* STYLES */
+/* STYLES - HEADER SUPPRIMÉ (maintenant dans AppHeader) */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: BACKGROUND_BLUE,
-  },
-  topBar: {
-    paddingTop: 40,
-    paddingHorizontal: 20,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  smallText: {
-    color: 'white',
-    fontSize: 12,
-  },
-  topRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  batteryCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#00FF7F',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  batteryText: {
-    color: '#00FF7F',
-    fontSize: 10,
-  },
-  circleIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  smallTopIcon: {
-    width: 20,
-    height: 20,
-    tintColor: '#ffffff',
-    resizeMode: 'contain',
-  },
-  avatarWrapper: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    overflow: 'hidden',
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  avatarPlaceholder: {
-    flex: 1,
-    backgroundColor: '#555',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   activitySelectorWrapper: {
@@ -366,28 +223,6 @@ const styles = StyleSheet.create({
     color: ORANGE,
     fontSize: 28,
     marginLeft: 4,
-  },
-
-  tabsContainer: {
-    height: 80,
-    backgroundColor: TABS_BG,
-    flexDirection: 'row',
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  tabIconImage: {
-    width: 26,
-    height: 26,
-    resizeMode: 'contain',
-    tintColor: '#ffffff',
-  },
-  tabLabel: {
-    color: 'white',
-    fontSize: 11,
   },
 
   modalOverlay: {
