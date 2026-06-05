@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Image,
     StyleSheet,
@@ -9,6 +9,7 @@ import {
     View,
 } from 'react-native';
 import AppHeaderSimple from '../components/AppHeaderSimple';
+import { useSession } from '../components/SessionContext';
 
 const BACKGROUND_BLUE = '#020045';
 const TABS_BG = '#08072D';
@@ -16,12 +17,48 @@ const CARD_PINK = '#C3295A';
 
 export default function ActivityLiveScreen() {
   const router = useRouter();
+  const {
+    lastFrame,
+    sessionMode,
+    stopSensorSession,
+    isSensorPaused,
+    pauseSensorSession,
+    resumeSensorSession,
+  } = useSession();
 
   const [isPaused, setIsPaused] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const timerRef = useRef(null);
 
-  const handlePause = () => setIsPaused(true);
-  const handleResume = () => setIsPaused(false);
-  const handleStop = () => router.push('/activities-summary');
+  useEffect(() => {
+    if (!isSensorPaused) {
+      timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
+    } else {
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [isSensorPaused]);
+
+  const fmtTime = (s) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return h > 0
+      ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+      : `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  };
+
+  const handlePause = () => { setIsPaused(true); pauseSensorSession(); };
+  const handleResume = () => { setIsPaused(false); resumeSensorSession(); };
+  const handleStop = async () => {
+    await stopSensorSession();
+    router.push('/history');
+  };
+
+  const bpm = lastFrame?.bpm ?? '---';
+  const temperature = lastFrame?.temperature != null ? lastFrame.temperature.toFixed(1) : '--';
+  const transpiration = lastFrame?.transpiration != null ? lastFrame.transpiration.toFixed(0) : '--';
+  const steps = lastFrame?.steps ?? 0;
 
   return (
     <View style={styles.container}>
@@ -31,42 +68,31 @@ export default function ActivityLiveScreen() {
       {/* CONTENU */}
       <View style={styles.content}>
         <View style={styles.bpmBlock}>
-          <Text style={styles.bpmValue}>---</Text>
+          <Text style={styles.bpmValue}>{bpm}</Text>
           <Text style={styles.bpmLabel}>BPM</Text>
         </View>
 
         <View style={styles.rowCards}>
           <View style={styles.smallCard}>
-            <Text style={styles.smallCardTitle}>DISTANCE</Text>
-            <View style={styles.rowCenter}>
-              <Text style={styles.smallCardValue}>--</Text>
-              <Text style={styles.smallCardUnit}>KM</Text>
-            </View>
-          </View>
-          <View style={styles.smallCard}>
             <Text style={styles.smallCardTitle}>TEMPS</Text>
-            <Text style={styles.smallCardValue}>00:00:00</Text>
-          </View>
-          <View style={styles.smallCard}>
-            <Text style={styles.smallCardTitle}>ALLURE</Text>
-            <Text style={styles.smallCardValue}>--'--''</Text>
-            <Text style={styles.smallCardUnit}>MIN/KM</Text>
+            <Text style={styles.smallCardValue}>{fmtTime(elapsed)}</Text>
           </View>
         </View>
 
+        {/* PODOMÈTRE à la place de RESPIRATION */}
         <View style={styles.bigCard}>
           <View style={styles.bigCardHeader}>
             <Image
-              source={require('../../IMAGE/RESPIRATION.png')}
+              source={require('../../IMAGE/ACTIVITES.png')}
               style={styles.metricIcon}
             />
-            <Text style={styles.bigCardTitle}>RESPIRATION</Text>
+            <Text style={styles.bigCardTitle}>PODOMÈTRE</Text>
           </View>
           <View style={styles.rowCenter}>
-            <Text style={styles.bigCardValue}>--</Text>
-            <Text style={styles.bigCardUnit}>RPM</Text>
+            <Text style={styles.bigCardValue}>{steps}</Text>
+            <Text style={styles.bigCardUnit}>PAS</Text>
           </View>
-          <Text style={styles.bigCardSub}>Respiration stable</Text>
+          <Text style={styles.bigCardSub}>Nombre de pas total</Text>
         </View>
 
         <View style={styles.bigCard}>
@@ -78,10 +104,20 @@ export default function ActivityLiveScreen() {
             <Text style={styles.bigCardTitle}>TRANSPIRATION</Text>
           </View>
           <View style={styles.rowCenter}>
-            <Text style={styles.bigCardValue}>--</Text>
+            <Text style={styles.bigCardValue}>{transpiration}</Text>
             <Text style={styles.bigCardUnit}>%</Text>
           </View>
           <Text style={styles.bigCardSub}>Niveau moyen</Text>
+        </View>
+
+        <View style={styles.bigCard}>
+          <View style={styles.bigCardHeader}>
+            <Text style={styles.bigCardTitle}>🌡️ TEMPÉRATURE</Text>
+          </View>
+          <View style={styles.rowCenter}>
+            <Text style={styles.bigCardValue}>{temperature}</Text>
+            <Text style={styles.bigCardUnit}>°C</Text>
+          </View>
         </View>
       </View>
 
@@ -163,13 +199,11 @@ export default function ActivityLiveScreen() {
   );
 }
 
-/* STYLES - HEADER SUPPRIMÉ (maintenant dans AppHeader) */
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: BACKGROUND_BLUE 
   },
-
   content: { 
     flex: 1, 
     paddingHorizontal: 20, 
@@ -189,7 +223,6 @@ const styles = StyleSheet.create({
     color: 'white', 
     fontSize: 18 
   },
-
   rowCards: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -218,7 +251,6 @@ const styles = StyleSheet.create({
     fontSize: 11, 
     marginLeft: 4 
   },
-
   bigCard: {
     backgroundColor: '#3E2B78',
     borderRadius: 18,
@@ -262,7 +294,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     fontSize: 12,
   },
-
   controlsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -304,7 +335,6 @@ const styles = StyleSheet.create({
     fontWeight: '700', 
     fontSize: 16 
   },
-
   tabsContainer: {
     height: 80,
     backgroundColor: TABS_BG,
@@ -326,7 +356,6 @@ const styles = StyleSheet.create({
     color: 'white', 
     fontSize: 11 
   },
-
   pauseOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(194, 41, 90, 0.7)',

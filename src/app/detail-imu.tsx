@@ -39,7 +39,7 @@ export default function DetailImuScreen() {
           <Text style={styles.retourTexte}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.titre}>🏃 IMU / Mouvement</Text>
+        <Text style={styles.titre}>IMU / Mouvement</Text>
 
         <LineChart
           data={data}

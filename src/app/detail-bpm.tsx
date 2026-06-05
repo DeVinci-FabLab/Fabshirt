@@ -39,7 +39,7 @@ export default function DetailBpmScreen() {
           <Text style={styles.retourTexte}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.titre}>❤️ Fréquence cardiaque</Text>
+        <Text style={styles.titre}>Fréquence cardiaque</Text>
 
         <LineChart
           data={data}

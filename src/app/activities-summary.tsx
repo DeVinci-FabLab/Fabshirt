@@ -7,12 +7,13 @@ import AppHeaderSimple from '../components/AppHeaderSimple';
 
 const BACKGROUND_BLUE = '#020045';
 const CARD_PINK = '#C3295A';
+const ORANGE = '#F18904';
 const { width } = Dimensions.get('window');
 
-const EXEMPLE_BPM          = { labels: ['0','5','10','15','20','25','30'], datasets: [{ data: [72, 85, 110, 145, 160, 138, 95] }] };
-const EXEMPLE_IMU          = { labels: ['0','5','10','15','20','25','30'], datasets: [{ data: [0.2, 0.5, 1.1, 0.9, 1.3, 0.7, 0.3] }] };
+const EXEMPLE_BPM           = { labels: ['0','5','10','15','20','25','30'], datasets: [{ data: [72, 85, 110, 145, 160, 138, 95] }] };
+const EXEMPLE_IMU           = { labels: ['0','5','10','15','20','25','30'], datasets: [{ data: [0.2, 0.5, 1.1, 0.9, 1.3, 0.7, 0.3] }] };
 const EXEMPLE_TRANSPIRATION = { labels: ['0','5','10','15','20','25','30'], datasets: [{ data: [10, 20, 35, 50, 65, 70, 68] }] };
-const EXEMPLE_RESPIRATION  = { labels: ['0','5','10','15','20','25','30'], datasets: [{ data: [14, 16, 22, 28, 30, 25, 18] }] };
+const EXEMPLE_TEMPERATURE   = { labels: ['0','5','10','15','20','25','30'], datasets: [{ data: [17.2, 17.5, 18.1, 18.4, 18.2, 17.9, 17.6] }] };
 
 const miniConfig = {
   backgroundGradientFrom: '#1E1B4B',
@@ -24,11 +25,10 @@ const miniConfig = {
   propsForDots: { r: '0' },
 };
 
-function MiniWidget({ titre, emoji, unite, moyenne, data, onPress }) {
+function MiniWidget({ titre, unite, moyenne, data, onPress }) {
   return (
     <TouchableOpacity style={styles.widget} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.widgetHeader}>
-        <Text style={styles.widgetEmoji}>{emoji}</Text>
         <Text style={styles.widgetTitre}>{titre}</Text>
         <Text style={styles.widgetMoyenne}>{moyenne} {unite}</Text>
       </View>
@@ -49,6 +49,16 @@ function MiniWidget({ titre, emoji, unite, moyenne, data, onPress }) {
   );
 }
 
+function StepsWidget({ steps }) {
+  return (
+    <View style={[styles.widget, styles.stepsWidget]}>
+      <Text style={styles.widgetTitre}>Podomètre</Text>
+      <Text style={styles.stepsVal}>{steps}</Text>
+      <Text style={styles.stepsLabel}>PAS</Text>
+    </View>
+  );
+}
+
 export default function ActivitySummaryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -56,7 +66,8 @@ export default function ActivitySummaryScreen() {
   const bpmData     = params.bpm     ? JSON.parse(params.bpm)     : EXEMPLE_BPM;
   const imuData     = params.imu     ? JSON.parse(params.imu)     : EXEMPLE_IMU;
   const transpiData = params.transpi ? JSON.parse(params.transpi) : EXEMPLE_TRANSPIRATION;
-  const respData    = params.resp    ? JSON.parse(params.resp)    : EXEMPLE_RESPIRATION;
+  const stepsTotal  = params.steps   ? Number(params.steps)       : 0;
+  const tempData    = params.temp    ? JSON.parse(params.temp)    : EXEMPLE_TEMPERATURE;
 
   const moyenne = (data) => {
     const vals = data.datasets[0].data;
@@ -70,7 +81,7 @@ export default function ActivitySummaryScreen() {
         bpm:     JSON.stringify(bpmData),
         imu:     JSON.stringify(imuData),
         transpi: JSON.stringify(transpiData),
-        resp:    JSON.stringify(respData),
+        temp:    JSON.stringify(tempData),
       }
     });
   };
@@ -91,12 +102,12 @@ export default function ActivitySummaryScreen() {
 
         <View style={styles.grid}>
           <MiniWidget
-            titre="Fréquence cardiaque" 
+            titre="Fréquence cardiaque"
             unite="bpm" moyenne={moyenne(bpmData)} data={bpmData}
             onPress={() => navDetail('/detail-bpm')}
           />
           <MiniWidget
-            titre="IMU / Mouvement" 
+            titre="IMU / Mouvement"
             unite="g" moyenne={moyenne(imuData)} data={imuData}
             onPress={() => navDetail('/detail-imu')}
           />
@@ -105,10 +116,11 @@ export default function ActivitySummaryScreen() {
             unite="%" moyenne={moyenne(transpiData)} data={transpiData}
             onPress={() => navDetail('/detail-transpiration')}
           />
+          <StepsWidget steps={stepsTotal} />
           <MiniWidget
-            titre="Respiration" 
-            unite="rpm" moyenne={moyenne(respData)} data={respData}
-            onPress={() => navDetail('/detail-respiration')}
+            titre="Température"
+            unite="°C" moyenne={(tempData.datasets[0].data.reduce((a,b)=>a+b,0)/tempData.datasets[0].data.length).toFixed(1)} data={tempData}
+            onPress={() => navDetail('/detail-temperature')}
           />
         </View>
 
@@ -134,10 +146,15 @@ const styles = StyleSheet.create({
     width: width / 2 - 26,
     overflow: 'hidden',
   },
+  stepsWidget: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   widgetHeader: { marginBottom: 2 },
-  widgetEmoji: { fontSize: 20, marginBottom: 4 },
   widgetTitre: { color: 'rgba(255,255,255,0.7)', fontSize: 12, marginBottom: 2 },
   widgetMoyenne: { color: 'white', fontSize: 20, fontWeight: '800' },
+  stepsVal: { color: ORANGE, fontSize: 36, fontWeight: '800', marginTop: 8 },
+  stepsLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 2 },
   bouton: { backgroundColor: CARD_PINK, borderRadius: 18, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
   boutonTexte: { color: 'white', fontWeight: '700', fontSize: 16 },
 });

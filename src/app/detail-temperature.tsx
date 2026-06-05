@@ -11,25 +11,25 @@ const { width } = Dimensions.get('window');
 const chartConfig = {
   backgroundGradientFrom: '#1E1B4B',
   backgroundGradientTo: '#3E2B78',
-  color: (opacity = 1) => `rgba(255, 100, 180, ${opacity})`,
+  color: (opacity = 1) => `rgba(255, 160, 50, ${opacity})`,
   labelColor: () => 'rgba(255,255,255,0.7)',
   strokeWidth: 2,
-  decimalPlaces: 0,
-  propsForDots: { r: '4', strokeWidth: '1', stroke: '#FF4C8B' },
+  decimalPlaces: 1,
+  propsForDots: { r: '4', strokeWidth: '1', stroke: '#FFA032' },
 };
 
-export default function DetailRespirationScreen() {
+export default function DetailTemperatureScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const data = params.resp ? JSON.parse(params.resp) : {
+  const data = params.temp ? JSON.parse(params.temp) : {
     labels: ['0','5','10','15','20','25','30'],
-    datasets: [{ data: [14, 16, 22, 28, 30, 25, 18] }]
+    datasets: [{ data: [17.2, 17.5, 18.1, 18.4, 18.2, 17.9, 17.6] }]
   };
 
   const vals = data.datasets[0].data;
-  const min  = Math.min(...vals);
-  const max  = Math.max(...vals);
-  const moy  = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  const min  = Math.min(...vals).toFixed(1);
+  const max  = Math.max(...vals).toFixed(1);
+  const moy  = (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1);
 
   return (
     <View style={styles.container}>
@@ -39,7 +39,7 @@ export default function DetailRespirationScreen() {
           <Text style={styles.retourTexte}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.titre}>🌬️ Respiration</Text>
+        <Text style={styles.titre}>Température extérieure</Text>
 
         <LineChart
           data={data}
@@ -48,35 +48,36 @@ export default function DetailRespirationScreen() {
           chartConfig={chartConfig}
           bezier
           style={{ borderRadius: 16, marginBottom: 20 }}
-          yAxisSuffix=" rpm"
+          yAxisSuffix=" °C"
           withInnerLines={false}
-          formatYLabel={(v) => Math.round(Number(v)).toString()}
+          formatYLabel={(v) => Number(v).toFixed(1)}
         />
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>MIN</Text>
             <Text style={styles.statValue}>{min}</Text>
-            <Text style={styles.statUnit}>rpm</Text>
+            <Text style={styles.statUnit}>°C</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>MOY</Text>
             <Text style={styles.statValue}>{moy}</Text>
-            <Text style={styles.statUnit}>rpm</Text>
+            <Text style={styles.statUnit}>°C</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>MAX</Text>
             <Text style={styles.statValue}>{max}</Text>
-            <Text style={styles.statUnit}>rpm</Text>
+            <Text style={styles.statUnit}>°C</Text>
           </View>
         </View>
 
         <View style={styles.infoCard}>
           <Text style={styles.infoTitre}>À propos</Text>
           <Text style={styles.infoTexte}>
-            La fréquence respiratoire mesure le nombre de cycles respiration/expiration par minute.
-            Au repos elle est entre 12 et 20 rpm. À l'effort elle peut dépasser 30 rpm.
-            Une respiration élevée prolongée peut indiquer de la fatigue ou un manque d'oxygène.
+            La température extérieure influence directement les performances sportives.
+            En dessous de 10 °C l'échauffement est plus long. Entre 15 et 20 °C les conditions
+            sont optimales. Au-delà de 25 °C la thermorégulation est plus sollicitée et le risque
+            de déshydratation augmente.
           </Text>
         </View>
       </ScrollView>
@@ -88,7 +89,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: BACKGROUND_BLUE },
   scroll: { padding: 20, paddingBottom: 40 },
   retour: { marginBottom: 12 },
-  retourTexte: { color: '#FF4C8B', fontSize: 15, fontWeight: '600' },
+  retourTexte: { color: '#FFA032', fontSize: 15, fontWeight: '600' },
   titre: { color: 'white', fontSize: 22, fontWeight: '800', marginBottom: 16 },
   statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
   statCard: { flex: 1, backgroundColor: '#1E1B4B', borderRadius: 14, padding: 14, alignItems: 'center', marginHorizontal: 4 },

@@ -2,15 +2,13 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Image } from 'react-native';
-import { SessionProvider } from '../../components/SessionContext';
 
 const TABS_BG = '#08072D';
 const ACTIVE_BLUE = '#0896B5';
 
 export default function TabLayout() {
   return (
-    <SessionProvider>
-      <Tabs
+    <Tabs
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
@@ -122,7 +120,6 @@ export default function TabLayout() {
             href: null,
           }}
         />
-      </Tabs>
-    </SessionProvider>
+    </Tabs>
   );
 }

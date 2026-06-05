@@ -39,7 +39,7 @@ export default function DetailTranspirationScreen() {
           <Text style={styles.retourTexte}>← Retour</Text>
         </TouchableOpacity>
 
-        <Text style={styles.titre}>💧 Transpiration</Text>
+        <Text style={styles.titre}>Transpiration</Text>
 
         <LineChart
           data={data}
