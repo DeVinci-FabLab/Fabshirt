@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 
-import { setCurrentUser } from '../store/userStore';
+import { setCurrentUser } from '../../store/userStore';
 
 export default function CompleteProfileScreen() {
   const router = useRouter();
@@ -125,7 +125,7 @@ export default function CompleteProfileScreen() {
               <Image source={{ uri: profilePhoto }} style={styles.photoImage} />
             ) : (
               <Image
-                source={require('../IMAGE/APPAREIL.png')}
+                source={require('../../IMAGE/APPAREIL.png')}
                 style={styles.photoIcon}
               />
             )}

@@ -106,7 +106,7 @@ export default function SetPasswordScreen() {
       {/* Logo en bas */}
       <View style={styles.bottomLogoContainer}>
         <Image
-          source={require('../IMAGE/LOGO.png')}
+          source={require('../../IMAGE/LOGO.png')}
           style={styles.bottomLogo}
         />
       </View>

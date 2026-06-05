@@ -15,7 +15,7 @@ export default function HomeScreen() {
 
   return (
     <ImageBackground
-      source={require('../../IMAGE/FOND ACCUEIL.png')}
+      source={require('../../../IMAGE/FOND_ACCUEIL.png')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -23,7 +23,7 @@ export default function HomeScreen() {
         {/* FABSHIRT en haut */}
         <View style={styles.header}>
           <Image
-            source={require('../../IMAGE/FABSHIRT.png')}
+            source={require('../../../IMAGE/FABSHIRT.png')}
             style={styles.fabshirtTitle}
           />
         </View>
@@ -31,7 +31,7 @@ export default function HomeScreen() {
         {/* Logo au milieu */}
         <View style={styles.center}>
           <Image
-            source={require('../../IMAGE/LOGO.png')}
+            source={require('../../../IMAGE/LOGO.png')}
             style={styles.logo}
           />
         </View>

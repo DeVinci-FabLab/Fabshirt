@@ -35,7 +35,7 @@ export default function VerifyCodeScreen() {
     }
 
     console.log('Code saisi :', fullCode);
-    // 👉 écran suivant : définir le mot de passe
+    // écran suivant : définir le mot de passe
     router.push('/set-password');
   };
 
@@ -87,7 +87,7 @@ export default function VerifyCodeScreen() {
       {/* Logo en bas */}
       <View style={styles.bottomLogoContainer}>
         <Image
-          source={require('../IMAGE/LOGO.png')}
+          source={require('../../IMAGE/LOGO.png')}
           style={styles.bottomLogo}
         />
       </View>
