@@ -115,5 +115,5 @@ Le t-shirt crée son propre réseau :
 SSID : `ESP32-Capteurs` 
 Mot de passe : `12345678` 
 IP : `192.168.4.1` 
-HTTP : port `80` -- `/data` 
+HTTP : port `80` - `/data` 
 WebSocket : port `81` 
