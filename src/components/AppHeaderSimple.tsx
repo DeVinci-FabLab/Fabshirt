@@ -1,5 +1,5 @@
-// src/components/AppHeaderSimple.tsx
-// Header simplifié pour les écrans hors session (comme activity-live)
+
+// Header simplifié pour les écrans hors session
 
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';

@@ -1,4 +1,4 @@
-// src/app/(tabs)/dashboard.tsx
+
 // @ts-nocheck
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';

@@ -1,5 +1,3 @@
-// src/components/AppHeader.tsx
-
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import {
