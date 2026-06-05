@@ -1,4 +1,4 @@
-# FabShirt — Application mobile React Native / Expo
+# FabShirt - Application mobile React Native / Expo
 
 Application de suivi sportif connectée au t-shirt FabShirt équipé de capteurs ESP32.
 
@@ -55,10 +55,10 @@ src/
 
 Toute la logique capteurs est centralisée dans `SessionContext.tsx` :
 
-- **Simulation** — `startSimulation(sport?)` génère des frames fictives toutes les 500ms
-- **WiFi ESP32** — `startWifi('ws' | 'http', sport?)` se connecte à `192.168.4.1`
+- **Simulation** - `startSimulation(sport?)` génère des frames fictives toutes les 500ms
+- **WiFi ESP32** - `startWifi('ws'|'http', sport?)` se connecte à `192.168.4.1`
   - WebSocket : `ws://192.168.4.1:81`
-  - HTTP polling : `http://192.168.4.1:80/data` (toutes les 500ms)
+  - HTTP polling : `http://192.168.4.1:80/data` 
 
 ### Trame JSON attendue de l'ESP32
 
